@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "claude/**"]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux:
+    name: Linux (swift 6.1)
+    runs-on: ubuntu-latest
+    container: swift:6.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: swift --version
+      - name: Build
+        run: swift build -v
+      - name: Test
+        run: swift test
+      - name: Fixture smoke
+        run: |
+          if [ -f Scripts/verify-fixtures.sh ]; then
+            swift build -c release
+            BIN="$(swift build -c release --show-bin-path)/reedit"
+            sh Scripts/verify-fixtures.sh "$BIN" out/
+          else
+            echo "Scripts/verify-fixtures.sh not present yet; skipping smoke."
+          fi
+      - name: Upload roundtrip outputs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: roundtrip-outputs-linux
+          path: out/
+          if-no-files-found: ignore
+
+  macos:
+    name: macOS (Darwin Foundation + CoreMedia)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: swift --version
+      - name: Build
+        run: swift build -v
+      - name: Test
+        run: swift test
+      - name: Fixture smoke
+        run: |
+          if [ -f Scripts/verify-fixtures.sh ]; then
+            swift build -c release
+            BIN="$(swift build -c release --show-bin-path)/reedit"
+            sh Scripts/verify-fixtures.sh "$BIN" out/
+          else
+            echo "Scripts/verify-fixtures.sh not present yet; skipping smoke."
+          fi
+      - name: Upload roundtrip outputs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: roundtrip-outputs-macos
+          path: out/
+          if-no-files-found: ignore
