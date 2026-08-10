@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fcpxml>
+<fcpxml version="1.11">
+    <resources>
+        <format id="r1" name="FFVideoFormat1080p25" frameDuration="100/2500s" width="1920" height="1080"/>
+        <asset id="r2" name="clip" uid="AA-1" start="0s" duration="120s" hasVideo="1" format="r1"/>
+    </resources>
+    <library location="file:///Users/editor/Movies/Weddings.fcpbundle/">
+        <event name="Bad Times" uid="BB-1">
+            <project name="Bad Times" uid="BB-2" modDate="2026-08-01 10:00:00 +0100">
+                <sequence format="r1" duration="1.5s" tcStart="0s" tcFormat="NDF">
+                    <spine>
+                        <asset-clip ref="r2" offset="0s" name="clip" start="1/0s" duration="1.5s" tcFormat="NDF"/>
+                    </spine>
+                </sequence>
+            </project>
+        </event>
+    </library>
+</fcpxml>
