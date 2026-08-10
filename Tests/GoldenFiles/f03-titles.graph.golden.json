@@ -1,0 +1,93 @@
+{
+  "duration" : "10s",
+  "fcpxmlVersion" : "1.11",
+  "frameDuration" : "1/25s",
+  "nodes" : [
+    {
+      "absoluteStart" : "0s",
+      "capabilities" : {
+        "canDeleteRange" : false,
+        "canEditAudio" : false,
+        "canEditTitle" : false,
+        "canTrimEnd" : false,
+        "canTrimStart" : false
+      },
+      "children" : [
+        {
+          "absoluteStart" : "0s",
+          "capabilities" : {
+            "canDeleteRange" : true,
+            "canEditAudio" : false,
+            "canEditTitle" : true,
+            "canTrimEnd" : true,
+            "canTrimStart" : true
+          },
+          "children" : [
+
+          ],
+          "duration" : "5s",
+          "kind" : "title",
+          "lane" : 0,
+          "parentID" : "a67ca1b564acddf876688f21f0f84c40",
+          "resourceRef" : "r5",
+          "sourceStart" : "3600s",
+          "stableID" : "b200d51d95bc03ce1d8364f2f8747824",
+          "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/title[0]"
+        },
+        {
+          "absoluteStart" : "5s",
+          "capabilities" : {
+            "canDeleteRange" : true,
+            "canEditAudio" : true,
+            "canEditTitle" : false,
+            "canTrimEnd" : true,
+            "canTrimStart" : true
+          },
+          "children" : [
+            {
+              "absoluteStart" : "6s",
+              "capabilities" : {
+                "canDeleteRange" : true,
+                "canEditAudio" : false,
+                "canEditTitle" : true,
+                "canTrimEnd" : true,
+                "canTrimStart" : true
+              },
+              "children" : [
+
+              ],
+              "duration" : "2s",
+              "kind" : "title",
+              "lane" : 2,
+              "parentID" : "e49d1d333b00fc1d642f2cefcfb679e5",
+              "resourceRef" : "r5",
+              "sourceStart" : "3600s",
+              "stableID" : "f72e373a92afa5ca5f5070383a39417c",
+              "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/asset-clip[0]/title[0]"
+            }
+          ],
+          "duration" : "5s",
+          "kind" : "asset-clip",
+          "lane" : 0,
+          "parentID" : "a67ca1b564acddf876688f21f0f84c40",
+          "resourceRef" : "r2",
+          "role" : "dialogue",
+          "sourceStart" : "40s",
+          "stableID" : "e49d1d333b00fc1d642f2cefcfb679e5",
+          "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/asset-clip[0]"
+        }
+      ],
+      "duration" : "0s",
+      "kind" : "spine",
+      "lane" : 0,
+      "stableID" : "a67ca1b564acddf876688f21f0f84c40",
+      "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]"
+    }
+  ],
+  "projectID" : "1a254e5a4168a9db65028b3c559e2f83",
+  "projectName" : "Lee Wedding Titles",
+  "projectStart" : "3600s",
+  "unsupported" : [
+
+  ]
+}

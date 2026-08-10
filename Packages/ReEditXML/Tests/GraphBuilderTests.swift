@@ -90,15 +90,25 @@ struct GraphBuilderTests {
                 == "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/asset-clip[2]")
     }
 
-    @Test func matchesCommittedGolden() throws {
+    @Test(arguments: [
+        ("valid/f01-simple-25fps.fcpxml", "f01-simple-25fps"),
+        ("valid/f02-connected-broll-music.fcpxml", "f02-connected-broll-music"),
+        ("valid/f03-titles.fcpxml", "f03-titles"),
+        ("valid/f04-audio-roles.fcpxml", "f04-audio-roles"),
+        ("valid/f05-gaps-transitions.fcpxml", "f05-gaps-transitions"),
+        ("valid/f06-bundle.fcpxmld", "f06-bundle"),
+        ("valid/f08-unknown-nodes.fcpxml", "f08-unknown-nodes"),
+    ])
+    func matchesCommittedGolden(fixture: String, goldenBase: String) throws {
         // Structural comparison: the golden decodes to an identical graph value.
         // Byte formatting of JSON is platform-dependent and intentionally not
         // asserted here.
-        let graph = try f01Graph()
+        let document = try FCPXMLDocument(path: FixtureLocator.fixturePath(fixture))
+        let graph = try TimelineGraphBuilder.build(from: document)
         let goldenData = try Data(
-            contentsOf: FixtureLocator.goldenURL("f01-simple-25fps.graph.golden.json"))
+            contentsOf: FixtureLocator.goldenURL("\(goldenBase).graph.golden.json"))
         let golden = try JSONDecoder().decode(TimelineGraph.self, from: goldenData)
-        #expect(graph == golden, "graph differs from committed golden")
+        #expect(graph == golden, "graph differs from committed golden for \(fixture)")
 
         // And our own encoding roundtrips losslessly.
         let reencoded = try JSONDecoder().decode(

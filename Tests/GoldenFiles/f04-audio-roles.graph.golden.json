@@ -1,0 +1,92 @@
+{
+  "duration" : "12s",
+  "fcpxmlVersion" : "1.11",
+  "frameDuration" : "1/25s",
+  "nodes" : [
+    {
+      "absoluteStart" : "0s",
+      "capabilities" : {
+        "canDeleteRange" : false,
+        "canEditAudio" : false,
+        "canEditTitle" : false,
+        "canTrimEnd" : false,
+        "canTrimStart" : false
+      },
+      "children" : [
+        {
+          "absoluteStart" : "0s",
+          "capabilities" : {
+            "canDeleteRange" : true,
+            "canEditAudio" : true,
+            "canEditTitle" : false,
+            "canTrimEnd" : true,
+            "canTrimStart" : true
+          },
+          "children" : [
+            {
+              "absoluteStart" : "2s",
+              "capabilities" : {
+                "canDeleteRange" : true,
+                "canEditAudio" : true,
+                "canEditTitle" : false,
+                "canTrimEnd" : true,
+                "canTrimStart" : true
+              },
+              "children" : [
+
+              ],
+              "duration" : "132301/44100s",
+              "kind" : "asset-clip",
+              "lane" : -1,
+              "parentID" : "82f10c62e1549debfb46faf9f1e6b018",
+              "resourceRef" : "r3",
+              "role" : "music.music-1",
+              "stableID" : "f34f2485de2f27dad055c0be7e33a790",
+              "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/asset-clip[0]/asset-clip[0]"
+            }
+          ],
+          "duration" : "10s",
+          "kind" : "asset-clip",
+          "lane" : 0,
+          "parentID" : "6fef7c88f297718ce6a8021f24f8e2a9",
+          "resourceRef" : "r2",
+          "role" : "dialogue.dialogue-1",
+          "sourceStart" : "0s",
+          "stableID" : "82f10c62e1549debfb46faf9f1e6b018",
+          "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/asset-clip[0]"
+        },
+        {
+          "absoluteStart" : "10s",
+          "capabilities" : {
+            "canDeleteRange" : true,
+            "canEditAudio" : false,
+            "canEditTitle" : false,
+            "canTrimEnd" : true,
+            "canTrimStart" : true
+          },
+          "children" : [
+
+          ],
+          "duration" : "2s",
+          "kind" : "gap",
+          "lane" : 0,
+          "parentID" : "6fef7c88f297718ce6a8021f24f8e2a9",
+          "sourceStart" : "3600s",
+          "stableID" : "d8173c5eea70a55eaf9a7aa985c1df5a",
+          "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/gap[0]"
+        }
+      ],
+      "duration" : "0s",
+      "kind" : "spine",
+      "lane" : 0,
+      "stableID" : "6fef7c88f297718ce6a8021f24f8e2a9",
+      "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]"
+    }
+  ],
+  "projectID" : "b94956197f0eb494b3af6fcc06e44093",
+  "projectName" : "Patel Wedding Speeches",
+  "projectStart" : "3600s",
+  "unsupported" : [
+
+  ]
+}

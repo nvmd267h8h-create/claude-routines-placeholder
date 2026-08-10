@@ -1,0 +1,115 @@
+{
+  "duration" : "20s",
+  "fcpxmlVersion" : "1.11",
+  "frameDuration" : "1/25s",
+  "nodes" : [
+    {
+      "absoluteStart" : "0s",
+      "capabilities" : {
+        "canDeleteRange" : false,
+        "canEditAudio" : false,
+        "canEditTitle" : false,
+        "canTrimEnd" : false,
+        "canTrimStart" : false
+      },
+      "children" : [
+        {
+          "absoluteStart" : "0s",
+          "capabilities" : {
+            "canDeleteRange" : true,
+            "canEditAudio" : true,
+            "canEditTitle" : false,
+            "canTrimEnd" : true,
+            "canTrimStart" : true
+          },
+          "children" : [
+            {
+              "absoluteStart" : "2s",
+              "capabilities" : {
+                "canDeleteRange" : true,
+                "canEditAudio" : false,
+                "canEditTitle" : false,
+                "canTrimEnd" : true,
+                "canTrimStart" : true
+              },
+              "children" : [
+
+              ],
+              "duration" : "4s",
+              "kind" : "asset-clip",
+              "lane" : 1,
+              "parentID" : "0487c70a9266787d6a35cfd6158a2275",
+              "resourceRef" : "r3",
+              "sourceStart" : "100s",
+              "stableID" : "1fd008e8e1b0066ed87bd7c6847e7614",
+              "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/asset-clip[0]/asset-clip[0]"
+            },
+            {
+              "absoluteStart" : "0s",
+              "capabilities" : {
+                "canDeleteRange" : true,
+                "canEditAudio" : true,
+                "canEditTitle" : false,
+                "canTrimEnd" : true,
+                "canTrimStart" : true
+              },
+              "children" : [
+
+              ],
+              "duration" : "18s",
+              "kind" : "asset-clip",
+              "lane" : -1,
+              "parentID" : "0487c70a9266787d6a35cfd6158a2275",
+              "resourceRef" : "r4",
+              "role" : "music.music-1",
+              "stableID" : "d114a1266b6bd89628df61ff27807997",
+              "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/asset-clip[0]/asset-clip[1]"
+            }
+          ],
+          "duration" : "12s",
+          "kind" : "asset-clip",
+          "lane" : 0,
+          "parentID" : "5615662aae2b554a59b8cddd00f94b71",
+          "resourceRef" : "r2",
+          "role" : "dialogue",
+          "sourceStart" : "5s",
+          "stableID" : "0487c70a9266787d6a35cfd6158a2275",
+          "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/asset-clip[0]"
+        },
+        {
+          "absoluteStart" : "12s",
+          "capabilities" : {
+            "canDeleteRange" : true,
+            "canEditAudio" : true,
+            "canEditTitle" : false,
+            "canTrimEnd" : true,
+            "canTrimStart" : true
+          },
+          "children" : [
+
+          ],
+          "duration" : "8s",
+          "kind" : "asset-clip",
+          "lane" : 0,
+          "parentID" : "5615662aae2b554a59b8cddd00f94b71",
+          "resourceRef" : "r2",
+          "role" : "dialogue",
+          "sourceStart" : "40s",
+          "stableID" : "981da4d1f6dcc7dd980fcb76cfa03e98",
+          "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/asset-clip[1]"
+        }
+      ],
+      "duration" : "0s",
+      "kind" : "spine",
+      "lane" : 0,
+      "stableID" : "5615662aae2b554a59b8cddd00f94b71",
+      "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]"
+    }
+  ],
+  "projectID" : "181e3be5633dcf6f7aecd8caa2bb9621",
+  "projectName" : "Jones Wedding Speeches",
+  "projectStart" : "3600s",
+  "unsupported" : [
+
+  ]
+}
