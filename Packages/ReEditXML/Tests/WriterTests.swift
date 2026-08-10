@@ -90,4 +90,60 @@ struct WriterTests {
         #expect(result.byteIdentical, "output was:\n\(result.output)")
         #expect(!result.output.hasSuffix("\n"))
     }
+
+    @Test func nonCanonicalIndentationNormalises() throws {
+        // The writer owns formatting (ADR-0004): a two-space-indented source
+        // re-emits in canonical four-space style. Bytes differ; meaning does
+        // not — the canonical comparison tier covers such files.
+        let xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <fcpxml version="1.11">
+              <resources>
+                <format id="r1" frameDuration="100/2500s"/>
+              </resources>
+            </fcpxml>
+
+            """
+        let path = FileManager.default.temporaryDirectory
+            .appendingPathComponent("reedit-writer-\(UUID().uuidString).fcpxml")
+        try Data(xml.utf8).write(to: path)
+        defer { try? FileManager.default.removeItem(at: path) }
+        let document = try FCPXMLDocument(path: path.path)
+        let (output, report) = RoundtripVerifier.verify(document)
+        #expect(!report.byteIdentical)
+        #expect(report.canonicallyIdentical)
+        let expected = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <fcpxml version="1.11">
+                <resources>
+                    <format id="r1" frameDuration="100/2500s"/>
+                </resources>
+            </fcpxml>
+
+            """
+        #expect(String(decoding: output, as: UTF8.self) == expected)
+    }
+
+    @Test func mixedContentStaysInline() throws {
+        // Whitespace inside title text is meaning, not formatting: elements
+        // with significant text emit children inline, untouched.
+        let xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <fcpxml version="1.11">
+                <text>
+                    <text-style ref="ts1">Harper &amp; James</text-style>
+                </text>
+            </fcpxml>
+
+            """
+        let path = FileManager.default.temporaryDirectory
+            .appendingPathComponent("reedit-writer-\(UUID().uuidString).fcpxml")
+        try Data(xml.utf8).write(to: path)
+        defer { try? FileManager.default.removeItem(at: path) }
+        let document = try FCPXMLDocument(path: path.path)
+        let (output, _) = RoundtripVerifier.verify(document)
+        let text = String(decoding: output, as: UTF8.self)
+        // The text-style run itself must survive exactly.
+        #expect(text.contains("<text-style ref=\"ts1\">Harper &amp; James</text-style>"))
+    }
 }

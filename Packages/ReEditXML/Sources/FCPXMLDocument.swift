@@ -114,11 +114,26 @@ public final class FCPXMLDocument {
         self.sourceFingerprint = SHA256.hexDigest([UInt8](data))
         self.prolog = PrologInfo.scan(data)
 
+        // Strict well-formedness gate first: Linux FoundationXML's XMLDocument
+        // silently *recovers* malformed XML (verified in CI), so a SAX parse —
+        // strict on both platforms — decides well-formedness.
+        let strictParser = XMLParser(data: data)
+        strictParser.externalEntityResolvingPolicy = .never
+        if !strictParser.parse() {
+            let underlying = strictParser.parserError.map(String.init(describing:))
+                ?? "unknown parser error"
+            throw FCPXMLLoadError.malformedXML(
+                path: input.documentPath,
+                underlying: "line \(strictParser.lineNumber): \(underlying)",
+                guidance: "Re-export the project from Final Cut Pro; do not hand-edit XML.")
+        }
+
         let document: XMLDocument
         do {
-            // Preserve whitespace text nodes so source formatting survives into
-            // the writer; external entities are never resolved (the FCPXML
-            // DOCTYPE has no external identifier).
+            // External entities are never resolved (the FCPXML DOCTYPE has no
+            // external identifier). Whitespace preservation is best-effort:
+            // Darwin drops whitespace-only text nodes regardless; the writer
+            // owns formatting (ADR-0004).
             document = try XMLDocument(data: data, options: [.nodePreserveWhitespace])
         } catch {
             throw FCPXMLLoadError.malformedXML(

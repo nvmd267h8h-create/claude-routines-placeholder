@@ -32,13 +32,11 @@ struct ErrorPathTests {
         do {
             _ = try FCPXMLDocument(path: path.path)
             Issue.record("expected notAnFCPXMLInput")
-        } catch let error as FCPXMLLoadError {
+        } catch {
             guard case .notAnFCPXMLInput = error else {
                 Issue.record("expected notAnFCPXMLInput, got \(error)")
                 return
             }
-        } catch {
-            Issue.record("unexpected error type \(error)")
         }
     }
 
@@ -92,14 +90,12 @@ struct ErrorPathTests {
         do {
             _ = try FCPXMLDocument(path: path.path)
             Issue.record("expected missingRootElement")
-        } catch let error as FCPXMLLoadError {
+        } catch {
             guard case .missingRootElement(_, let found, _) = error else {
                 Issue.record("expected missingRootElement, got \(error)")
                 return
             }
             #expect(found == "plist")
-        } catch {
-            Issue.record("unexpected error type \(error)")
         }
     }
 
