@@ -140,17 +140,21 @@ enum SequenceTiming {
                 xmlPath: XMLPath.path(of: format), element: "format", attribute: "frameDuration",
                 guidance: "Progressive timelines need an explicit frame duration (spec §3.2).")
         }
+        let value: FCPTime
         do {
-            let value = try FCPTime(fcpxmlString: raw)
-            guard value.numerator > 0 else {
-                throw FCPTimeError.invalidFrameGrid(grid: raw)
-            }
-            return (raw, value)
+            value = try FCPTime(fcpxmlString: raw)
         } catch {
             throw FCPXMLLoadError.invalidTimeValue(
                 xmlPath: XMLPath.path(of: format), attribute: "frameDuration", value: raw,
                 underlying: error.description,
                 guidance: "Frame durations must be positive rational times such as '100/2500s'.")
         }
+        guard value.numerator > 0 else {
+            throw FCPXMLLoadError.invalidTimeValue(
+                xmlPath: XMLPath.path(of: format), attribute: "frameDuration", value: raw,
+                underlying: FCPTimeError.invalidFrameGrid(grid: raw).description,
+                guidance: "Frame durations must be positive rational times such as '100/2500s'.")
+        }
+        return (raw, value)
     }
 }
