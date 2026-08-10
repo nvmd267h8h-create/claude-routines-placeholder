@@ -18,9 +18,9 @@
             <project name="Smith Wedding Highlights" uid="BB22CC33-DD44-4422-9966-000000000011" modDate="2026-08-01 10:00:00 +0100">
                 <sequence format="r1" duration="18s" tcStart="3600s" tcFormat="NDF" audioLayout="stereo" audioRate="48k">
                     <spine>
-                        <asset-clip ref="r2" offset="0s" name="A001_ceremony" start="10s" duration="6s" tcFormat="NDF"/>
-                        <asset-clip ref="r3" offset="6s" name="A002_vows" start="775/25s" duration="8s" tcFormat="NDF"/>
-                        <asset-clip ref="r4" offset="14s" name="A003_rings" start="0s" duration="4s" tcFormat="NDF"/>
+                        <asset-clip ref="r2" offset="3600s" name="A001_ceremony" start="10s" duration="6s" tcFormat="NDF"/>
+                        <asset-clip ref="r3" offset="3606s" name="A002_vows" start="775/25s" duration="8s" tcFormat="NDF"/>
+                        <asset-clip ref="r4" offset="3614s" name="A003_rings" start="0s" duration="4s" tcFormat="NDF"/>
                     </spine>
                 </sequence>
             </project>

@@ -21,8 +21,14 @@ public struct FCPXMLInput: Sendable {
     /// Resolves a user-supplied path into a readable FCPXML document
     /// (spec §6.2: accept both `.fcpxml` files and `.fcpxmld` bundles).
     public static func resolve(
-        path: String, fileSystem: any FileSystemProviding
+        path rawPath: String, fileSystem: any FileSystemProviding
     ) throws(FCPXMLLoadError) -> FCPXMLInput {
+        // A directory path often arrives with a trailing slash (shell tab
+        // completion); normalise so extension checks still see ".fcpxmld".
+        var path = rawPath
+        while path.count > 1, path.hasSuffix("/") {
+            path = String(path.dropLast())
+        }
         guard fileSystem.fileExists(atPath: path) else {
             throw FCPXMLLoadError.fileNotFound(
                 path: path,

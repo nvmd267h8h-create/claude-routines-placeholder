@@ -145,6 +145,7 @@ struct GraphFixtureTests {
         "valid/f03-titles.fcpxml",
         "valid/f04-audio-roles.fcpxml",
         "valid/f05-gaps-transitions.fcpxml",
+        "valid/f06-bundle.fcpxmld",
         "valid/f08-unknown-nodes.fcpxml",
     ])
     func allValidFixturesValidateClean(fixture: String) throws {
@@ -163,6 +164,100 @@ struct GraphFixtureTests {
         #expect(music.duration == (try FCPTime(fcpxmlString: "132301/44100s")))
         #expect(!music.duration.isAligned(toGrid: graph.frameDuration))
         #expect(music.absoluteStart == FCPTime(seconds: 2))
+    }
+
+    @Test func spineChildrenAreAnchoredAtTcStart() throws {
+        // Final Cut expresses spine offsets on the tcStart-based sequence
+        // timeline (first clip of a 01:00:00:00 project sits at offset 3600s);
+        // graph times subtract tcStart to stay 0-based.
+        let graph = try graph("valid/f01-simple-25fps.fcpxml")
+        #expect(graph.projectStart == FCPTime(seconds: 3600))
+        let spine = try #require(graph.nodes.first)
+        #expect(spine.absoluteStart == .zero)
+        #expect(spine.children[0].absoluteStart == .zero, "offset 3600s − tcStart 3600s")
+        #expect(spine.children[1].absoluteStart == FCPTime(seconds: 6))
+        #expect(spine.children[2].absoluteStart == FCPTime(seconds: 14))
+    }
+
+    @Test func malformedLaneIsATypedError() throws {
+        let xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <fcpxml version="1.11">
+                <resources>
+                    <format id="r1" frameDuration="100/2500s"/>
+                    <asset id="r2" name="a" uid="u" start="0s" duration="99s" hasVideo="1" format="r1"/>
+                </resources>
+                <library>
+                    <event name="e">
+                        <project name="p">
+                            <sequence format="r1" duration="4s" tcStart="0s">
+                                <spine>
+                                    <asset-clip ref="r2" offset="0s" lane="banana" start="0s" duration="4s"/>
+                                </spine>
+                            </sequence>
+                        </project>
+                    </event>
+                </library>
+            </fcpxml>
+
+            """
+        let path = FileManager.default.temporaryDirectory
+            .appendingPathComponent("reedit-lane-\(UUID().uuidString).fcpxml")
+        try Data(xml.utf8).write(to: path)
+        defer { try? FileManager.default.removeItem(at: path) }
+        let document = try FCPXMLDocument(path: path.path)
+        do {
+            _ = try TimelineGraphBuilder.build(from: document)
+            Issue.record("expected invalidAttributeValue")
+        } catch {
+            guard case .invalidAttributeValue(_, let attribute, let value, _) = error else {
+                Issue.record("expected invalidAttributeValue, got \(error)")
+                return
+            }
+            #expect(attribute == "lane")
+            #expect(value == "banana")
+        }
+    }
+
+    @Test func zeroFrameDurationIsATypedErrorNotACrash() throws {
+        let xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <fcpxml version="1.11">
+                <resources>
+                    <format id="r1" frameDuration="0s"/>
+                </resources>
+                <library>
+                    <event name="e">
+                        <project name="p">
+                            <sequence format="r1" duration="4s" tcStart="0s">
+                                <spine/>
+                            </sequence>
+                        </project>
+                    </event>
+                </library>
+            </fcpxml>
+
+            """
+        let path = FileManager.default.temporaryDirectory
+            .appendingPathComponent("reedit-zerofd-\(UUID().uuidString).fcpxml")
+        try Data(xml.utf8).write(to: path)
+        defer { try? FileManager.default.removeItem(at: path) }
+        let document = try FCPXMLDocument(path: path.path)
+        do {
+            _ = try Inspector.inspect(document)
+            Issue.record("expected invalidTimeValue for zero frameDuration")
+        } catch {
+            guard case .invalidTimeValue(_, let attribute, let value, _, _) = error else {
+                Issue.record("expected invalidTimeValue, got \(error)")
+                return
+            }
+            #expect(attribute == "frameDuration")
+            #expect(value == "0s")
+        }
+        // The validator flags it as an error finding too.
+        let report = Validator.validate(document)
+        #expect(report.hasErrors)
+        #expect(report.findings.contains { $0.message.contains("must be positive") })
     }
 
     @Test func f06BundleLoadsAndBuilds() throws {

@@ -10,7 +10,13 @@ public enum FrameSnapRule: Sendable {
 
 extension FCPTime {
     /// Whether this time lies exactly on the grid of `frameDuration` multiples.
+    ///
     /// A non-positive grid never aligns anything and returns `false`.
+    /// Documented boundary: when the cross products overflow even after
+    /// gcd reduction (times beyond ~10^17 seconds on fine grids — far outside
+    /// any timeline), this returns `false` rather than answering exactly;
+    /// `frameIndex(grid:rounding:)` throws `.overflow` for the same input, so
+    /// callers needing a hard guarantee use the throwing API.
     public func isAligned(toGrid frameDuration: FCPTime) -> Bool {
         guard frameDuration.numerator > 0 else { return false }
         guard let division = try? gridDivision(by: frameDuration) else { return false }
@@ -72,13 +78,24 @@ extension FCPTime {
     private func gridDivision(
         by frameDuration: FCPTime
     ) throws(FCPTimeError) -> (floorQuotient: Int64, remainder: Int64, divisor: Int64) {
-        // self / frameDuration = (num * fd.den) / (den * fd.num); both stored
-        // fractions are reduced, but the cross products can still overflow for
-        // extreme values — checked, never approximated.
-        let (dividend, o1) = numerator.multipliedReportingOverflow(
-            by: frameDuration.denominator)
-        let (divisor, o2) = denominator.multipliedReportingOverflow(
-            by: frameDuration.numerator)
+        // self / frameDuration = (num * fd.den) / (den * fd.num). Cancel
+        // common factors across the fractions first (each is internally
+        // reduced already) — the ratio, floor and remainder-zero facts are
+        // unchanged and the overflow window shrinks dramatically. Remaining
+        // overflow for absurd magnitudes is checked, never approximated.
+        let crossA = FCPTime.gcd(numerator.magnitude, frameDuration.numerator.magnitude)
+        let crossB = FCPTime.gcd(UInt64(denominator), UInt64(frameDuration.denominator))
+        let reducedNumerator = crossA > 1 ? numerator / Int64(crossA) : numerator
+        let reducedGridNumerator =
+            crossA > 1 ? frameDuration.numerator / Int64(crossA) : frameDuration.numerator
+        let reducedDenominator = crossB > 1 ? denominator / Int64(crossB) : denominator
+        let reducedGridDenominator =
+            crossB > 1 ? frameDuration.denominator / Int64(crossB) : frameDuration.denominator
+
+        let (dividend, o1) = reducedNumerator.multipliedReportingOverflow(
+            by: reducedGridDenominator)
+        let (divisor, o2) = reducedDenominator.multipliedReportingOverflow(
+            by: reducedGridNumerator)
         guard !o1, !o2 else {
             throw FCPTimeError.overflow(
                 operation: "frame-grid division", lhs: fcpxmlString,

@@ -37,10 +37,16 @@ public enum TimelineGraphBuilder {
             document: document, resources: resources, frameDuration: frameInfo.value)
         var spineNodes: [TimelineNode] = []
         for child in DOM.childElements(of: sequence) where child.name == "spine" {
+            // Final Cut expresses spine child offsets on the sequence timeline,
+            // whose origin is tcStart (a 01:00:00:00 project exports its first
+            // clip at offset="3600s"). The spine node itself anchors at 0 and
+            // its children subtract tcStart, keeping graph times 0-based
+            // (docs/phase0-conventions.md).
             spineNodes.append(
                 try builder.buildNode(
                     element: child, parentID: nil, parentAbsoluteStart: .zero,
-                    parentSourceStart: .zero, parentDuration: declaredDuration))
+                    parentSourceStart: .zero, parentDuration: declaredDuration,
+                    childOriginOverride: projectStart))
         }
 
         return TimelineGraph(
@@ -78,12 +84,17 @@ public enum TimelineGraphBuilder {
         /// parent's local timeline, whose origin sits at the parent's `start`
         /// (media in-point), so:
         /// `absStart(child) = absStart(parent) + (child.offset - parent.start)`.
+        ///
+        /// `childOriginOverride` replaces this node's own `start` as the
+        /// origin its children subtract — used for the spine, whose children
+        /// are positioned on the sequence's tcStart-based timeline.
         mutating func buildNode(
             element: XMLElement,
             parentID: String?,
             parentAbsoluteStart: FCPTime,
             parentSourceStart: FCPTime,
-            parentDuration: FCPTime
+            parentDuration: FCPTime,
+            childOriginOverride: FCPTime? = nil
         ) throws(FCPXMLLoadError) -> TimelineNode {
             let kind = NodeKind(elementName: element.name ?? "?")
             let xmlPath = XMLPath.path(of: element)
@@ -109,7 +120,17 @@ public enum TimelineGraphBuilder {
                     guidance: "Timeline positions overflowed exact arithmetic; the file is suspect.")
             }
 
-            let lane = Int(DOM.attribute("lane", of: element) ?? "0") ?? 0
+            let lane: Int
+            if let laneAttribute = DOM.attribute("lane", of: element) {
+                guard let parsedLane = Int(laneAttribute) else {
+                    throw FCPXMLLoadError.invalidAttributeValue(
+                        xmlPath: xmlPath, attribute: "lane", value: laneAttribute,
+                        guidance: "Lanes are integers (0 primary, positive above, negative below).")
+                }
+                lane = parsedLane
+            } else {
+                lane = 0
+            }
             let role =
                 DOM.attribute("role", of: element)
                 ?? DOM.attribute("audioRole", of: element)
@@ -167,7 +188,7 @@ public enum TimelineGraphBuilder {
                     try buildNode(
                         element: child, parentID: id,
                         parentAbsoluteStart: absoluteStart,
-                        parentSourceStart: sourceStart,
+                        parentSourceStart: childOriginOverride ?? sourceStart,
                         parentDuration: duration))
             }
 

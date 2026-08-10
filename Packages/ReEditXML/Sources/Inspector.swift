@@ -24,11 +24,14 @@ public struct InspectionReport: Codable, Sendable, Equatable {
     public let nodeCounts: [String: Int]
 
     /// Frames per second for display only (floating point never feeds edit
-    /// logic, spec §5.3): "25", "29.97".
+    /// logic, spec §5.3): "25", "29.97". The loader rejects non-positive frame
+    /// durations, but this stays total for defence in depth — never trap on
+    /// display formatting.
     public var framesPerSecondDisplay: String {
+        guard frameDuration.numerator > 0 else { return "invalid" }
         let fps = Double(frameDuration.denominator) / Double(frameDuration.numerator)
         let rounded = (fps * 100).rounded() / 100
-        if rounded == rounded.rounded() {
+        if rounded == rounded.rounded(), rounded <= Double(Int32.max) {
             return String(Int(rounded.rounded()))
         }
         return String(format: "%.2f", rounded)
@@ -138,12 +141,16 @@ enum SequenceTiming {
                 guidance: "Progressive timelines need an explicit frame duration (spec §3.2).")
         }
         do {
-            return (raw, try FCPTime(fcpxmlString: raw))
+            let value = try FCPTime(fcpxmlString: raw)
+            guard value.numerator > 0 else {
+                throw FCPTimeError.invalidFrameGrid(grid: raw)
+            }
+            return (raw, value)
         } catch {
             throw FCPXMLLoadError.invalidTimeValue(
                 xmlPath: XMLPath.path(of: format), attribute: "frameDuration", value: raw,
                 underlying: error.description,
-                guidance: "Frame durations must be rational times such as '100/2500s'.")
+                guidance: "Frame durations must be positive rational times such as '100/2500s'.")
         }
     }
 }

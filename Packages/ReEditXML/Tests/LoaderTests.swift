@@ -74,4 +74,14 @@ struct BundleTests {
         #expect(input.kind == .file)
         #expect(input.documentPath == input.inputPath)
     }
+
+    @Test func resolvesBundleWithTrailingSlash() throws {
+        // Shell tab completion appends '/' to directories; the bundle must
+        // still be recognised.
+        let input = try FCPXMLInput.resolve(
+            path: FixtureLocator.fixturePath("valid/f06-bundle.fcpxmld") + "/",
+            fileSystem: LiveFileSystem())
+        #expect(input.kind == .bundle(innerDocumentName: "Info.fcpxml"))
+        #expect(input.documentPath.hasSuffix("f06-bundle.fcpxmld/Info.fcpxml"))
+    }
 }

@@ -22,7 +22,7 @@
                 <sequence format="r1" duration="16s" tcStart="3600s" tcFormat="NDF" audioLayout="stereo" audioRate="48k">
                     <spine>
                         <!-- locked: client approved section -->
-                        <asset-clip ref="r2" offset="0s" name="reception-entry" start="0s" duration="4s" customFutureAttr="1" tcFormat="NDF">
+                        <asset-clip ref="r2" offset="3600s" name="reception-entry" start="0s" duration="4s" customFutureAttr="1" tcFormat="NDF">
                             <marker start="1s" duration="1/25s" value="Client note &#10;keep this moment"/>
                             <filter-video ref="r6" name="Mystery Look"/>
                             <metadata>
@@ -30,11 +30,11 @@
                             </metadata>
                             <future-thing mode="x"/>
                         </asset-clip>
-                        <ref-clip ref="r7" offset="4s" name="compound-usage" duration="4s"/>
-                        <sync-clip offset="8s" name="synced-angles" duration="4s" format="r1" tcFormat="NDF">
+                        <ref-clip ref="r7" offset="3604s" name="compound-usage" duration="4s"/>
+                        <sync-clip offset="3608s" name="synced-angles" duration="4s" format="r1" tcFormat="NDF">
                             <asset-clip ref="r2" offset="0s" name="sync-inner" start="200s" duration="4s" tcFormat="NDF"/>
                         </sync-clip>
-                        <asset-clip ref="r2" offset="12s" name="conformed-slowmo" start="250s" duration="4s" tcFormat="NDF">
+                        <asset-clip ref="r2" offset="3612s" name="conformed-slowmo" start="250s" duration="4s" tcFormat="NDF">
                             <conform-rate scaleEnabled="0" srcFrameRate="60"/>
                         </asset-clip>
                     </spine>

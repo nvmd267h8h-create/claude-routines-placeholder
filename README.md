@@ -80,7 +80,10 @@ requires, on real projects:
    fidelity report.
 3. Import `roundtrip.fcpxml` into a **disposable** Final Cut event.
 4. Confirm: no import warnings, no version change, no media relink prompts, and no
-   visible timeline/title/audio/effect differences in the supported subset.
+   visible timeline/title/audio/effect differences in the supported subset. Check
+   titles especially closely — macOS XML parsing cannot preserve whitespace-only
+   styled runs (ADR-0004), so multi-run titles are the most likely place for
+   fidelity loss to show.
 5. Repeat for at least three representative projects (simple, normal wedding
    highlight with connected clips, intentionally complex with compound/multicam).
 

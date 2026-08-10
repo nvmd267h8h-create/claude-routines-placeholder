@@ -60,20 +60,49 @@ enum Commands {
         return report.hasErrors ? ExitCode.findings : ExitCode.success
     }
 
+    /// Never write over a source (spec §1.5). Fail-closed: symlinks are
+    /// resolved, comparison is case-insensitive (macOS filesystems usually
+    /// are), containment covers outputs inside a .fcpxmld bundle input, and
+    /// when the output already exists its file identity is compared too.
+    private static func ensureOutputDoesNotTouchSource(
+        input: String, output: String
+    ) throws {
+        let inputPath = URL(fileURLWithPath: input).standardizedFileURL
+            .resolvingSymlinksInPath().path
+        let outputPath = URL(fileURLWithPath: output).standardizedFileURL
+            .resolvingSymlinksInPath().path
+        let lowerInput = inputPath.lowercased()
+        let lowerOutput = outputPath.lowercased()
+        var collides = lowerOutput == lowerInput || lowerOutput.hasPrefix(lowerInput + "/")
+
+        if !collides, FileManager.default.fileExists(atPath: outputPath),
+            let inputAttributes = try? FileManager.default.attributesOfItem(atPath: inputPath),
+            let outputAttributes = try? FileManager.default.attributesOfItem(atPath: outputPath),
+            let inputInode = inputAttributes[.systemFileNumber] as? UInt64,
+            let outputInode = outputAttributes[.systemFileNumber] as? UInt64,
+            inputInode == outputInode
+        {
+            collides = true
+        }
+
+        if collides {
+            throw FCPXMLLoadError.outputWouldOverwriteSource(
+                input: inputPath, output: outputPath,
+                guidance: "Choose an output path outside the source input.")
+        }
+    }
+
     private static func roundtrip(
         input: String, output: String, fileSystem: any FileSystemProviding
     ) throws -> Int32 {
-        let inputURL = URL(fileURLWithPath: input).standardizedFileURL
-        let outputURL = URL(fileURLWithPath: output).standardizedFileURL
-        // Never write over the source (spec §1.5): equality or containment
-        // (an output inside a .fcpxmld bundle input) are both refused.
-        if outputURL.path == inputURL.path
-            || outputURL.path.hasPrefix(inputURL.path + "/")
-        {
-            throw FCPXMLLoadError.outputWouldOverwriteSource(
-                input: inputURL.path, output: outputURL.path,
-                guidance: "Choose an output path outside the source input.")
+        try ensureOutputDoesNotTouchSource(input: input, output: output)
+        if output.lowercased().hasSuffix(".fcpxmld") {
+            throw FCPXMLLoadError.notAnFCPXMLInput(
+                path: output,
+                guidance:
+                    "Roundtrip writes a flat FCPXML document; choose a .fcpxml output path.")
         }
+        let outputURL = URL(fileURLWithPath: output).standardizedFileURL
 
         let document = try FCPXMLDocument(path: input, fileSystem: fileSystem)
         let (outputData, report) = RoundtripVerifier.verify(document)
@@ -110,6 +139,7 @@ enum Commands {
     private static func graph(
         input: String, json: String, fileSystem: any FileSystemProviding
     ) throws -> Int32 {
+        try ensureOutputDoesNotTouchSource(input: input, output: json)
         let document = try FCPXMLDocument(path: input, fileSystem: fileSystem)
         let graph = try TimelineGraphBuilder.build(from: document)
         let data = try StableJSON.encode(graph)

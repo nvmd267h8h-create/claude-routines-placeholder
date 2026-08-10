@@ -12,22 +12,31 @@ import Foundation
 /// trusting the DOM for whitespace the writer emits Final Cut's canonical
 /// style itself — four-space indentation, one element per line, childless
 /// elements self-closed, attributes in document order, FCP-style escaping.
-/// Mixed content (elements with significant text, e.g. `<text>`) is emitted
-/// inline with no injected whitespace, because whitespace there is meaning.
+///
+/// Mixed content is where whitespace is meaning, so it is never reformatted:
+/// inside `<text>` (title content) and inside any element with significant
+/// text, every child — including whitespace-only text runs — is emitted
+/// verbatim inline. (Darwin's parser may have already dropped whitespace-only
+/// runs before the writer sees them; that platform limitation is recorded in
+/// ADR-0004 and checked at the Final Cut import gate.)
 ///
 /// Sources already in canonical style (all synthetic fixtures, normal Final
-/// Cut exports) therefore roundtrip byte-identically on both platforms; other
-/// formatting styles roundtrip to canonical form and are covered by the
-/// canonical comparison tier.
+/// Cut exports) therefore roundtrip byte-identically; other formatting styles
+/// roundtrip to canonical form and are covered by the canonical comparison
+/// tier.
 enum FCPXMLWriter {
+    /// Element names whose subtree is mixed content: children are emitted
+    /// inline and whitespace-only text is preserved, never filtered.
+    static let mixedContentElements: Set<String> = ["text"]
+
     /// Serializes the document's retained DOM back to bytes.
     static func serialize(_ document: FCPXMLDocument) -> Data {
         var output = ""
-        if let declaration = document.prolog.xmlDeclaration {
-            output += declaration + "\n"
+        if document.prolog.hasByteOrderMark {
+            output += "\u{FEFF}"
         }
-        if let doctype = document.prolog.doctype {
-            output += doctype + "\n"
+        for item in document.prolog.items {
+            output += item + "\n"
         }
         write(node: document.root, depth: 0, inline: false, into: &output)
         if document.prolog.endsWithNewline {
@@ -48,24 +57,32 @@ enum FCPXMLWriter {
                 let value = attribute.stringValue ?? ""
                 output += " " + name + "=\"" + escapeAttribute(value) + "\""
             }
-            // Whitespace-only text nodes are formatting, not content; the
-            // writer re-derives formatting itself (see type comment).
-            let children = (element.children ?? []).filter { !isIgnorableWhitespace($0) }
-            if children.isEmpty {
-                output += "/>"
-                return
-            }
-            output += ">"
-            let hasSignificantText = children.contains { child in
-                child.kind == .text
-            }
-            if inline || hasSignificantText {
-                for child in children {
+            let allChildren = element.children ?? []
+            let significantChildren = allChildren.filter { !isIgnorableWhitespace($0) }
+            let inlineMode =
+                inline
+                || mixedContentElements.contains(element.name ?? "")
+                || significantChildren.contains { $0.kind == .text }
+
+            if inlineMode {
+                if allChildren.isEmpty {
+                    output += "/>"
+                    return
+                }
+                output += ">"
+                for child in allChildren {
                     write(node: child, depth: depth + 1, inline: true, into: &output)
                 }
             } else {
+                // Whitespace-only text between structural elements is
+                // formatting; the writer re-derives it (see type comment).
+                if significantChildren.isEmpty {
+                    output += "/>"
+                    return
+                }
+                output += ">"
                 let childIndent = String(repeating: "    ", count: depth + 1)
-                for child in children {
+                for child in significantChildren {
                     output += "\n" + childIndent
                     write(node: child, depth: depth + 1, inline: false, into: &output)
                 }
@@ -87,7 +104,8 @@ enum FCPXMLWriter {
         }
     }
 
-    /// Whitespace-only text nodes between elements carry formatting only.
+    /// Whitespace-only text nodes between structural elements carry
+    /// formatting only. (Never applied inside mixed content.)
     private static func isIgnorableWhitespace(_ node: XMLNode) -> Bool {
         guard node.kind == .text else { return false }
         let text = node.stringValue ?? ""
@@ -95,7 +113,8 @@ enum FCPXMLWriter {
             && text.allSatisfy { $0 == " " || $0 == "\n" || $0 == "\t" || $0 == "\r" }
     }
 
-    /// Escaping for text content: `&`, `<`, `>` only, matching FCP output.
+    /// Escaping for text content: `&`, `<`, `>` plus a numeric reference for
+    /// CR (which bare would be normalised to LF by any XML reparse).
     static func escapeText(_ text: String) -> String {
         var escaped = ""
         escaped.reserveCapacity(text.count)
@@ -104,6 +123,7 @@ enum FCPXMLWriter {
             case "&": escaped += "&amp;"
             case "<": escaped += "&lt;"
             case ">": escaped += "&gt;"
+            case "\r": escaped += "&#13;"
             default: escaped.append(character)
             }
         }

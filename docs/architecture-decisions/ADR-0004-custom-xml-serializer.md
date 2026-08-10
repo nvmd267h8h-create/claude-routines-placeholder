@@ -32,9 +32,14 @@ The first cross-platform CI run (run 5) established two facts empirically:
   escaping (numeric references for newline/tab/CR in attribute values). Elements
   containing significant text (mixed content such as `<text>`) emit children inline
   with no injected whitespace, because whitespace there is meaning.
-- The XML declaration and DOCTYPE are re-emitted from a **raw-byte prolog scan**
-  recorded at load time, never from the DOM, so FoundationXML's DTD handling is out
-  of the fidelity path entirely.
+- The entire prolog — XML declaration, comments, processing instructions and the
+  DOCTYPE (including any internal subset), plus a UTF-8 BOM when present — is
+  re-emitted from a **raw-byte prolog scan** recorded at load time, never from the
+  DOM, so FoundationXML's DTD handling is out of the fidelity path entirely.
+- Mixed content is never reformatted: `<text>` subtrees (title content) and any
+  element with significant text emit all children inline with whitespace-only text
+  runs preserved — a space-only styled run is title content, and deleting it would
+  change the rendered title.
 
 ## Comparison tiers
 
@@ -54,10 +59,13 @@ The first cross-platform CI run (run 5) established two facts empirically:
 - A source with non-canonical formatting (unusual indentation, blank lines)
   re-emits in canonical form: byte tier reports the difference, canonical tier
   proves meaning survived. Known, intended behaviour with a dedicated test.
-- Inter-element whitespace inside mixed content that Darwin's parser drops cannot
-  be reproduced anywhere; Final Cut derives titles from `text-style` runs, not
-  inter-run whitespace, so this is cosmetic. The Final Cut import gate (spec §6.1)
-  remains the semantic authority.
+- **Darwin platform limitation**: Darwin's parser drops whitespace-only text nodes
+  before the writer ever sees them — including, on that platform, a space-only
+  styled run inside `<text>`. Linux CI (whose parser retains them) byte-verifies
+  their preservation; on macOS the loss is unavoidable with Foundation parsing and
+  is explicitly listed for scrutiny at the Final Cut import gate (spec §6.1) on
+  titled projects. If real projects show damage there, the hand-rolled preservation
+  parser fallback below applies.
 - Stop condition (spec §11.2): if real-export fidelity proves unacceptable at the
   Final Cut import gate, the fallback is a minimal hand-rolled preservation parser —
   an architecture change requiring explicit sign-off before any work.

@@ -114,6 +114,8 @@ struct ErrorPathTests {
             .invalidTimeValue(
                 xmlPath: "/fcpxml", attribute: "duration", value: "1.5s", underlying: "u",
                 guidance: "g"),
+            .invalidAttributeValue(
+                xmlPath: "/fcpxml", attribute: "lane", value: "banana", guidance: "g"),
             .danglingResourceReference(xmlPath: "/fcpxml", ref: "r99", guidance: "g"),
             .outputWouldOverwriteSource(input: "/a", output: "/a", guidance: "g"),
         ]

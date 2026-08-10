@@ -15,8 +15,10 @@ absStart(child) = absStart(parent) + (child.offset − parent.start)
 ```
 
 because a child's `offset` is expressed on its parent's local timeline, whose origin
-sits at the parent's `start` (media in-point). Spines have no `start`, so spine
-children reduce to `absStart = offset`.
+sits at the parent's `start` (media in-point). The spine's children live on the
+**sequence timeline, whose origin is `tcStart`** — Final Cut exports the first clip
+of a 01:00:00:00 project at `offset="3600s"` — so spine children use `tcStart` as
+the subtracted origin and come out 0-based.
 
 ## XML paths
 
@@ -32,15 +34,18 @@ graph JSON and sidecar manifests.
 
 ## Canonical XML style (writer output)
 
-- `<?xml version="1.0" encoding="UTF-8"?>` and `<!DOCTYPE fcpxml>` re-emitted
-  exactly as found by the raw-byte prolog scan (never invented, never dropped).
+- The whole prolog — XML declaration, comments, processing instructions and
+  `<!DOCTYPE fcpxml>` (including an internal subset), plus a UTF-8 BOM if present —
+  is re-emitted exactly as found by the raw-byte prolog scan (never invented,
+  never dropped).
 - Four-space indentation, one element per line.
 - Childless elements self-close (`<gap .../>`).
 - Attributes in document order, double-quoted.
-- Text escaping: `& < >`. Attribute escaping additionally `"` and numeric
-  references `&#10;` `&#9;` `&#13;`.
-- Elements containing significant text (mixed content, e.g. `<text>`) emit children
-  inline with no injected whitespace.
+- Text escaping: `& < >` and `&#13;` for CR. Attribute escaping additionally `"`
+  and numeric references `&#10;` `&#9;`.
+- Mixed content — `<text>` subtrees and any element with significant text — emits
+  children inline with every text node preserved verbatim, including
+  whitespace-only styled runs (they are title content, not formatting).
 - Trailing newline matches the source.
 
 Sources already in this style (all fixtures, normal Final Cut exports) roundtrip
@@ -58,6 +63,14 @@ comparison tier (ADR-0004).
 | 4 | Internal error (a bug — never expected in normal operation) |
 
 Human output goes to stdout; diagnostics and error descriptions go to stderr.
+
+## Fixture naming
+
+Fixture file IDs (`f01`…) are local to this repository and do not map 1:1 onto the
+spec's §10.2 fixture table: `f06-bundle` covers `.fcpxmld` bundle input (part of the
+spec's supported-input contract), while the spec's F06 (23.976/29.97 samples) and
+F07 (compound/multicam) are **before-beta** gates that need real anonymised exports
+from the user and are intentionally not represented yet.
 
 ## Golden files
 

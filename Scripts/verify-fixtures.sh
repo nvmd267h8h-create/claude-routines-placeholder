@@ -92,6 +92,12 @@ expect_exit "e05 empty bundle rejects load" 3 "$BIN" inspect "$FIXTURES/invalid/
 expect_exit "usage error on unknown command" 2 "$BIN" frobnicate
 expect_exit "roundtrip refuses to overwrite source" 3 "$BIN" roundtrip \
     "$FIXTURES/valid/f01-simple-25fps.fcpxml" --output "$FIXTURES/valid/f01-simple-25fps.fcpxml"
+expect_exit "graph refuses to overwrite source" 3 "$BIN" graph \
+    "$FIXTURES/valid/f01-simple-25fps.fcpxml" --json "$FIXTURES/valid/f01-simple-25fps.fcpxml"
+expect_exit "graph refuses to write inside a bundle input" 3 "$BIN" graph \
+    "$FIXTURES/valid/f06-bundle.fcpxmld" --json "$FIXTURES/valid/f06-bundle.fcpxmld/graph.json"
+expect_exit "roundtrip refuses .fcpxmld output paths" 3 "$BIN" roundtrip \
+    "$FIXTURES/valid/f01-simple-25fps.fcpxml" --output "$OUT/refused.fcpxmld"
 
 if [ "$failures" -gt 0 ]; then
     echo "verify-fixtures: $failures failure(s)" >&2

@@ -12,7 +12,7 @@
             <project name="Novak Bundle Smoke" uid="FF22AA33-BB44-4422-DD66-000000000011" modDate="2026-08-06 08:05:00 +0100">
                 <sequence format="r1" duration="6s" tcStart="3600s" tcFormat="NDF" audioLayout="stereo" audioRate="48k">
                     <spine>
-                        <asset-clip ref="r2" offset="0s" name="prep-wide" start="12s" duration="6s" tcFormat="NDF"/>
+                        <asset-clip ref="r2" offset="3600s" name="prep-wide" start="12s" duration="6s" tcFormat="NDF"/>
                     </spine>
                 </sequence>
             </project>

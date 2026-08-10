@@ -13,6 +13,8 @@ public enum FCPXMLLoadError: Error, Sendable, CustomStringConvertible {
     case invalidTimeValue(
         xmlPath: String, attribute: String, value: String, underlying: String,
         guidance: String)
+    case invalidAttributeValue(
+        xmlPath: String, attribute: String, value: String, guidance: String)
     case danglingResourceReference(xmlPath: String, ref: String, guidance: String)
     case outputWouldOverwriteSource(input: String, output: String, guidance: String)
 
@@ -37,6 +39,8 @@ public enum FCPXMLLoadError: Error, Sendable, CustomStringConvertible {
             return "<\(element)> at \(xmlPath) is missing required attribute '\(attribute)'. \(guidance)"
         case .invalidTimeValue(let xmlPath, let attribute, let value, let underlying, let guidance):
             return "Attribute '\(attribute)=\"\(value)\"' at \(xmlPath) is not a valid time: \(underlying). \(guidance)"
+        case .invalidAttributeValue(let xmlPath, let attribute, let value, let guidance):
+            return "Attribute '\(attribute)=\"\(value)\"' at \(xmlPath) is not valid. \(guidance)"
         case .danglingResourceReference(let xmlPath, let ref, let guidance):
             return "Node at \(xmlPath) references resource '\(ref)' which does not exist. \(guidance)"
         case .outputWouldOverwriteSource(let input, let output, let guidance):

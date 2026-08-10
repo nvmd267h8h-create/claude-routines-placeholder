@@ -5,30 +5,70 @@ import ReEditCore
     import FoundationXML
 #endif
 
+/// Strict well-formedness checking shared by the loader and the canonicalizer.
+///
+/// Linux FoundationXML's `XMLDocument` silently *recovers* malformed XML and
+/// its `XMLParser.parse()` can return true despite fatal errors (both verified
+/// in CI), so well-formedness is decided by a SAX parse with a delegate that
+/// captures every reported error.
+enum StrictXML {
+    /// Returns nil when well-formed, else a description of the first error.
+    static func wellFormednessError(in data: Data) -> String? {
+        let parser = XMLParser(data: data)
+        parser.externalEntityResolvingPolicy = .never
+        let sink = ParseErrorSink()
+        parser.delegate = sink
+        let parsed = parser.parse()
+        if let error = sink.firstError ?? (parsed ? nil : parser.parserError) {
+            return "line \(parser.lineNumber): \(String(describing: error))"
+        }
+        return parsed ? nil : "line \(parser.lineNumber): unknown parser error"
+    }
+
+    private final class ParseErrorSink: NSObject, XMLParserDelegate {
+        var firstError: Error?
+
+        func parser(_ parser: XMLParser, parseErrorOccurred parseError: Error) {
+            if firstError == nil {
+                firstError = parseError
+            }
+        }
+    }
+}
+
 /// Facts recorded from the raw bytes before XML parsing.
 ///
 /// FoundationXML on Linux does not reliably surface DTD/prolog nodes, so the
-/// writer re-emits the declaration and `<!DOCTYPE fcpxml>` from this scan
-/// instead of trusting the DOM (ADR-0004).
+/// writer re-emits everything before the root element — declaration, comments,
+/// processing instructions and `<!DOCTYPE fcpxml>` (including an internal
+/// subset) — from this scan instead of trusting the DOM (ADR-0004).
 struct PrologInfo: Sendable, Equatable {
-    /// Exact `<?xml ...?>` text, when the source starts with one.
-    let xmlDeclaration: String?
-    /// Exact `<!DOCTYPE ...>` text, when present before the root element.
-    let doctype: String?
+    /// Whether the source starts with a UTF-8 byte order mark.
+    let hasByteOrderMark: Bool
+    /// Prolog constructs before the root element, verbatim and in order.
+    let items: [String]
     /// Whether the source's final byte is a newline.
     let endsWithNewline: Bool
 
+    /// Exact `<?xml ...?>` text, when present.
+    var xmlDeclaration: String? {
+        items.first { $0.hasPrefix("<?xml") }
+    }
+
+    /// Exact `<!DOCTYPE ...>` text, when present.
+    var doctype: String? {
+        items.first { $0.hasPrefix("<!DOCTYPE") }
+    }
+
     static func scan(_ data: Data) -> PrologInfo {
-        let bytes = [UInt8](data.prefix(4096))
+        // 64 KiB covers any realistic prolog; the root element ends the scan.
+        let bytes = [UInt8](data.prefix(65536))
         var index = 0
 
-        func skipWhitespace() {
-            while index < bytes.count,
-                bytes[index] == 0x20 || bytes[index] == 0x09 || bytes[index] == 0x0A
-                    || bytes[index] == 0x0D
-            {
-                index += 1
-            }
+        var hasBOM = false
+        if bytes.count >= 3, bytes[0] == 0xEF, bytes[1] == 0xBB, bytes[2] == 0xBF {
+            hasBOM = true
+            index = 3
         }
 
         func matches(_ prefix: String) -> Bool {
@@ -37,49 +77,68 @@ struct PrologInfo: Sendable, Equatable {
             return Array(bytes[index..<(index + prefixBytes.count)]) == prefixBytes
         }
 
-        var declaration: String?
-        if matches("<?xml") {
+        func capture(until terminator: String) -> String? {
+            let terminatorBytes = Array(terminator.utf8)
             let start = index
-            while index + 1 < bytes.count {
-                if bytes[index] == UInt8(ascii: "?"), bytes[index + 1] == UInt8(ascii: ">") {
-                    index += 2
-                    declaration = String(decoding: bytes[start..<index], as: UTF8.self)
-                    break
+            while index + terminatorBytes.count <= bytes.count {
+                if Array(bytes[index..<(index + terminatorBytes.count)]) == terminatorBytes {
+                    index += terminatorBytes.count
+                    return String(decoding: bytes[start..<index], as: UTF8.self)
                 }
                 index += 1
             }
+            index = start
+            return nil
         }
 
-        skipWhitespace()
-
-        var doctype: String?
-        if matches("<!DOCTYPE") {
+        /// DOCTYPE ends at the first '>' outside an internal subset's [...].
+        func captureDoctype() -> String? {
             let start = index
+            var subsetDepth = 0
             while index < bytes.count {
-                if bytes[index] == UInt8(ascii: ">") {
+                let byte = bytes[index]
+                if byte == UInt8(ascii: "[") {
+                    subsetDepth += 1
+                } else if byte == UInt8(ascii: "]") {
+                    subsetDepth = max(0, subsetDepth - 1)
+                } else if byte == UInt8(ascii: ">"), subsetDepth == 0 {
                     index += 1
-                    doctype = String(decoding: bytes[start..<index], as: UTF8.self)
-                    break
+                    return String(decoding: bytes[start..<index], as: UTF8.self)
                 }
                 index += 1
+            }
+            index = start
+            return nil
+        }
+
+        var items: [String] = []
+        scanning: while index < bytes.count {
+            // Skip whitespace between prolog constructs.
+            while index < bytes.count,
+                bytes[index] == 0x20 || bytes[index] == 0x09 || bytes[index] == 0x0A
+                    || bytes[index] == 0x0D
+            {
+                index += 1
+            }
+            if matches("<!--") {
+                guard let comment = capture(until: "-->") else { break scanning }
+                items.append(comment)
+            } else if matches("<!DOCTYPE") {
+                guard let doctype = captureDoctype() else { break scanning }
+                items.append(doctype)
+            } else if matches("<?") {
+                guard let instruction = capture(until: "?>") else { break scanning }
+                items.append(instruction)
+            } else {
+                // Root element (or EOF): the prolog is over.
+                break scanning
             }
         }
 
         return PrologInfo(
-            xmlDeclaration: declaration,
-            doctype: doctype,
+            hasByteOrderMark: hasBOM,
+            items: items,
             endsWithNewline: data.last == 0x0A)
-    }
-}
-
-/// Captures SAX-level parse errors during the strict well-formedness gate.
-private final class ParseErrorSink: NSObject, XMLParserDelegate {
-    var firstError: Error?
-
-    func parser(_ parser: XMLParser, parseErrorOccurred parseError: Error) {
-        if firstError == nil {
-            firstError = parseError
-        }
     }
 }
 
@@ -125,21 +184,10 @@ public final class FCPXMLDocument {
         self.sourceFingerprint = SHA256.hexDigest([UInt8](data))
         self.prolog = PrologInfo.scan(data)
 
-        // Strict well-formedness gate first: Linux FoundationXML's XMLDocument
-        // silently *recovers* malformed XML (verified in CI), so a SAX parse
-        // decides well-formedness. On Linux `parse()` can return true despite
-        // fatal errors (also verified in CI), so a delegate captures them.
-        let strictParser = XMLParser(data: data)
-        strictParser.externalEntityResolvingPolicy = .never
-        let errorSink = ParseErrorSink()
-        strictParser.delegate = errorSink
-        let parsed = strictParser.parse()
-        if !parsed || errorSink.firstError != nil || strictParser.parserError != nil {
-            let underlying = (errorSink.firstError ?? strictParser.parserError)
-                .map(String.init(describing:)) ?? "unknown parser error"
+        if let error = StrictXML.wellFormednessError(in: data) {
             throw FCPXMLLoadError.malformedXML(
                 path: input.documentPath,
-                underlying: "line \(strictParser.lineNumber): \(underlying)",
+                underlying: error,
                 guidance: "Re-export the project from Final Cut Pro; do not hand-edit XML.")
         }
 

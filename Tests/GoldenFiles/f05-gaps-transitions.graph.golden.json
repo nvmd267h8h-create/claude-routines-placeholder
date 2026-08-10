@@ -1,132 +1,120 @@
 {
-  "duration" : "12s",
-  "fcpxmlVersion" : "1.11",
-  "frameDuration" : "1/25s",
-  "nodes" : [
+  "duration": "12s",
+  "fcpxmlVersion": "1.11",
+  "frameDuration": "1/25s",
+  "nodes": [
     {
-      "absoluteStart" : "0s",
-      "capabilities" : {
-        "canDeleteRange" : false,
-        "canEditAudio" : false,
-        "canEditTitle" : false,
-        "canTrimEnd" : false,
-        "canTrimStart" : false
+      "absoluteStart": "0s",
+      "capabilities": {
+        "canDeleteRange": false,
+        "canEditAudio": false,
+        "canEditTitle": false,
+        "canTrimEnd": false,
+        "canTrimStart": false
       },
-      "children" : [
+      "children": [
         {
-          "absoluteStart" : "0s",
-          "capabilities" : {
-            "canDeleteRange" : true,
-            "canEditAudio" : true,
-            "canEditTitle" : false,
-            "canTrimEnd" : true,
-            "canTrimStart" : true
+          "absoluteStart": "0s",
+          "capabilities": {
+            "canDeleteRange": true,
+            "canEditAudio": true,
+            "canEditTitle": false,
+            "canTrimEnd": true,
+            "canTrimStart": true
           },
-          "children" : [
-
-          ],
-          "duration" : "4s",
-          "kind" : "asset-clip",
-          "lane" : 0,
-          "parentID" : "7afce604a0d22a7bac1ebf3ae49841b6",
-          "resourceRef" : "r2",
-          "sourceStart" : "10s",
-          "stableID" : "2e864a26a2c91b16df04d0a2b9969cf4",
-          "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/asset-clip[0]"
+          "children": [],
+          "duration": "4s",
+          "kind": "asset-clip",
+          "lane": 0,
+          "parentID": "d91c47062fd1bebbf79c3d507e71c33b",
+          "resourceRef": "r2",
+          "sourceStart": "10s",
+          "stableID": "f39a856c8a9a1a1553caaadbf4657dba",
+          "xmlPath": "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/asset-clip[0]"
         },
         {
-          "absoluteStart" : "3s",
-          "capabilities" : {
-            "canDeleteRange" : false,
-            "canEditAudio" : false,
-            "canEditTitle" : false,
-            "canTrimEnd" : false,
-            "canTrimStart" : false
+          "absoluteStart": "3s",
+          "capabilities": {
+            "canDeleteRange": false,
+            "canEditAudio": false,
+            "canEditTitle": false,
+            "canTrimEnd": false,
+            "canTrimStart": false
           },
-          "children" : [
-
-          ],
-          "duration" : "2s",
-          "kind" : "transition",
-          "lane" : 0,
-          "parentID" : "7afce604a0d22a7bac1ebf3ae49841b6",
-          "stableID" : "59cb0ace094be27d76b1ccadb6a589d4",
-          "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/transition[0]"
+          "children": [],
+          "duration": "2s",
+          "kind": "transition",
+          "lane": 0,
+          "parentID": "d91c47062fd1bebbf79c3d507e71c33b",
+          "stableID": "9c8c22f04d395c52dfbfd304ee95c083",
+          "xmlPath": "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/transition[0]"
         },
         {
-          "absoluteStart" : "4s",
-          "capabilities" : {
-            "canDeleteRange" : true,
-            "canEditAudio" : true,
-            "canEditTitle" : false,
-            "canTrimEnd" : true,
-            "canTrimStart" : true
+          "absoluteStart": "4s",
+          "capabilities": {
+            "canDeleteRange": true,
+            "canEditAudio": true,
+            "canEditTitle": false,
+            "canTrimEnd": true,
+            "canTrimStart": true
           },
-          "children" : [
-
-          ],
-          "duration" : "4s",
-          "kind" : "asset-clip",
-          "lane" : 0,
-          "parentID" : "7afce604a0d22a7bac1ebf3ae49841b6",
-          "resourceRef" : "r2",
-          "sourceStart" : "60s",
-          "stableID" : "7a695934561475681880840b47eff3c9",
-          "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/asset-clip[1]"
+          "children": [],
+          "duration": "4s",
+          "kind": "asset-clip",
+          "lane": 0,
+          "parentID": "d91c47062fd1bebbf79c3d507e71c33b",
+          "resourceRef": "r2",
+          "sourceStart": "60s",
+          "stableID": "06949084feb4dc239dd0ff8bb9cb493c",
+          "xmlPath": "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/asset-clip[1]"
         },
         {
-          "absoluteStart" : "8s",
-          "capabilities" : {
-            "canDeleteRange" : true,
-            "canEditAudio" : false,
-            "canEditTitle" : false,
-            "canTrimEnd" : true,
-            "canTrimStart" : true
+          "absoluteStart": "8s",
+          "capabilities": {
+            "canDeleteRange": true,
+            "canEditAudio": false,
+            "canEditTitle": false,
+            "canTrimEnd": true,
+            "canTrimStart": true
           },
-          "children" : [
-
-          ],
-          "duration" : "2s",
-          "kind" : "gap",
-          "lane" : 0,
-          "parentID" : "7afce604a0d22a7bac1ebf3ae49841b6",
-          "sourceStart" : "3600s",
-          "stableID" : "7ff6b9d65391e4929cdd5539be1ba5d0",
-          "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/gap[0]"
+          "children": [],
+          "duration": "2s",
+          "kind": "gap",
+          "lane": 0,
+          "parentID": "d91c47062fd1bebbf79c3d507e71c33b",
+          "sourceStart": "3600s",
+          "stableID": "ac4adf1e12699ebb6d8513bfc2fabed7",
+          "xmlPath": "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/gap[0]"
         },
         {
-          "absoluteStart" : "10s",
-          "capabilities" : {
-            "canDeleteRange" : true,
-            "canEditAudio" : true,
-            "canEditTitle" : false,
-            "canTrimEnd" : true,
-            "canTrimStart" : true
+          "absoluteStart": "10s",
+          "capabilities": {
+            "canDeleteRange": true,
+            "canEditAudio": true,
+            "canEditTitle": false,
+            "canTrimEnd": true,
+            "canTrimStart": true
           },
-          "children" : [
-
-          ],
-          "duration" : "2s",
-          "kind" : "asset-clip",
-          "lane" : 0,
-          "parentID" : "7afce604a0d22a7bac1ebf3ae49841b6",
-          "resourceRef" : "r2",
-          "sourceStart" : "120s",
-          "stableID" : "9ef9bec35ae6d962c1bbdafd56350699",
-          "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/asset-clip[2]"
+          "children": [],
+          "duration": "2s",
+          "kind": "asset-clip",
+          "lane": 0,
+          "parentID": "d91c47062fd1bebbf79c3d507e71c33b",
+          "resourceRef": "r2",
+          "sourceStart": "120s",
+          "stableID": "a1352581dcb3e1ff0facb59cd619de21",
+          "xmlPath": "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]/asset-clip[2]"
         }
       ],
-      "duration" : "0s",
-      "kind" : "spine",
-      "lane" : 0,
-      "stableID" : "7afce604a0d22a7bac1ebf3ae49841b6",
-      "xmlPath" : "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]"
+      "duration": "0s",
+      "kind": "spine",
+      "lane": 0,
+      "stableID": "d91c47062fd1bebbf79c3d507e71c33b",
+      "xmlPath": "/fcpxml/library[0]/event[0]/project[0]/sequence[0]/spine[0]"
     }
   ],
-  "projectID" : "1ae776fa214ca45bd1dbcba7e5dfba4a",
-  "projectName" : "Kim Wedding Ceremony",
-  "projectStart" : "3600s",
-  "unsupported" : [
-
-  ]
+  "projectID": "92986dbd2b5c40eef7f13258963c26fd",
+  "projectName": "Kim Wedding Ceremony",
+  "projectStart": "3600s",
+  "unsupported": []
 }

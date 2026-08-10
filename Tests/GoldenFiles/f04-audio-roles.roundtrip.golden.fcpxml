@@ -15,12 +15,12 @@
             <project name="Patel Wedding Speeches" uid="BB88CC99-DD00-4488-FF22-000000000011" modDate="2026-08-04 16:45:00 +0100">
                 <sequence format="r1" duration="12s" tcStart="3600s" tcFormat="NDF" audioLayout="stereo" audioRate="48k">
                     <spine>
-                        <asset-clip ref="r2" offset="0s" name="speech" start="0s" duration="10s" audioRole="dialogue.dialogue-1" tcFormat="NDF">
+                        <asset-clip ref="r2" offset="3600s" name="speech" start="0s" duration="10s" audioRole="dialogue.dialogue-1" tcFormat="NDF">
                             <adjust-volume amount="3dB"/>
                             <audio-channel-source srcCh="1, 2" role="dialogue.dialogue-1"/>
                             <asset-clip ref="r3" lane="-1" offset="2s" name="music-under" duration="132301/44100s" audioRole="music.music-1"/>
                         </asset-clip>
-                        <gap name="Gap" offset="10s" start="3600s" duration="2s"/>
+                        <gap name="Gap" offset="3610s" start="3600s" duration="2s"/>
                     </spine>
                 </sequence>
             </project>

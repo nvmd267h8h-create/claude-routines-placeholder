@@ -85,11 +85,17 @@ public enum Validator {
                 else { continue }
                 do {
                     let time = try FCPTime(fcpxmlString: value)
-                    if name == "duration" || name == "frameDuration", time.isNegative {
+                    if name == "duration", time.isNegative {
                         findings.append(
                             ValidationFinding(
                                 severity: .error, xmlPath: XMLPath.path(of: element),
                                 message: "\(name)=\"\(value)\" is negative."))
+                    }
+                    if name == "frameDuration", time.numerator <= 0 {
+                        findings.append(
+                            ValidationFinding(
+                                severity: .error, xmlPath: XMLPath.path(of: element),
+                                message: "frameDuration=\"\(value)\" must be positive."))
                     }
                 } catch {
                     findings.append(

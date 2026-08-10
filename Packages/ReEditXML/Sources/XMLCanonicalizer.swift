@@ -6,7 +6,8 @@ import Foundation
 
 /// Produces a semantic-comparison form of a document: attributes sorted by
 /// name, whitespace-only text nodes and comments dropped, remaining text kept
-/// verbatim.
+/// verbatim. Inside mixed content (`<text>` subtrees) whitespace-only text IS
+/// meaning and is kept.
 ///
 /// Two documents with equal canonical forms carry the same FCPXML meaning even
 /// when quoting style, attribute order or indentation differ — the comparison
@@ -17,20 +18,25 @@ enum XMLCanonicalizer {
     static func canonicalForm(of document: XMLDocument) -> String {
         guard let root = document.rootElement() else { return "" }
         var output = ""
-        appendCanonical(node: root, depth: 0, into: &output)
+        appendCanonical(node: root, depth: 0, inMixedContent: false, into: &output)
         return output
     }
 
-    /// Parses `data` and returns its canonical form, or nil when not well-formed.
+    /// Parses `data` and returns its canonical form, or nil when not
+    /// strictly well-formed (the recovering DOM parse is never the authority —
+    /// see StrictXML).
     static func canonicalForm(of data: Data) -> String? {
-        guard let document = try? XMLDocument(data: data, options: [.nodePreserveWhitespace])
+        guard StrictXML.wellFormednessError(in: data) == nil,
+            let document = try? XMLDocument(data: data, options: [.nodePreserveWhitespace])
         else {
             return nil
         }
         return canonicalForm(of: document)
     }
 
-    private static func appendCanonical(node: XMLNode, depth: Int, into output: inout String) {
+    private static func appendCanonical(
+        node: XMLNode, depth: Int, inMixedContent: Bool, into output: inout String
+    ) {
         let indent = String(repeating: " ", count: depth)
         switch node.kind {
         case .element:
@@ -45,14 +51,21 @@ enum XMLCanonicalizer {
                 output += " " + attributes
             }
             output += "\n"
+            let mixed =
+                inMixedContent
+                || FCPXMLWriter.mixedContentElements.contains(element.name ?? "")
             for child in element.children ?? [] {
-                appendCanonical(node: child, depth: depth + 1, into: &output)
+                appendCanonical(node: child, depth: depth + 1, inMixedContent: mixed, into: &output)
             }
             output += indent + ")\n"
         case .text:
             let text = node.stringValue ?? ""
-            // Whitespace-only text is formatting, not meaning.
-            if !text.allSatisfy({ $0 == " " || $0 == "\n" || $0 == "\t" || $0 == "\r" }) {
+            let isWhitespaceOnly = text.allSatisfy {
+                $0 == " " || $0 == "\n" || $0 == "\t" || $0 == "\r"
+            }
+            // Whitespace-only text is formatting outside mixed content, but
+            // meaning inside it (a space-only styled title run).
+            if !isWhitespaceOnly || inMixedContent {
                 output += indent + "text:" + text + "\n"
             }
         default:
