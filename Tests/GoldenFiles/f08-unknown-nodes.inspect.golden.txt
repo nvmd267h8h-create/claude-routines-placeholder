@@ -1,0 +1,27 @@
+FCPXML version: 1.13
+Project: Okafor Unknowns
+Frame duration: 100/2500s (25 fps)
+Project start: 3600s
+Duration: 16s
+Node counts:
+  asset: 1
+  asset-clip: 4
+  conform-rate: 1
+  effect: 1
+  event: 1
+  fcpxml: 1
+  filter-video: 1
+  format: 1
+  future-thing: 1
+  library: 1
+  marker: 1
+  md: 1
+  media: 1
+  media-rep: 1
+  metadata: 1
+  project: 1
+  ref-clip: 1
+  resources: 1
+  sequence: 2
+  spine: 2
+  sync-clip: 1

@@ -11,7 +11,13 @@ import Testing
 @Suite("No-op roundtrip goldens")
 struct RoundtripGoldenTests {
     static let fixtures: [String] = [
-        "valid/f01-simple-25fps.fcpxml"
+        "valid/f01-simple-25fps.fcpxml",
+        "valid/f02-connected-broll-music.fcpxml",
+        "valid/f03-titles.fcpxml",
+        "valid/f04-audio-roles.fcpxml",
+        "valid/f05-gaps-transitions.fcpxml",
+        "valid/f06-bundle.fcpxmld",
+        "valid/f08-unknown-nodes.fcpxml",
     ]
 
     @Test(arguments: fixtures)

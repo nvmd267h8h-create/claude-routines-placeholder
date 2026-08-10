@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fcpxml>
+<fcpxml version="1.13">
+    <!-- torture test: unknown constructs must be preserved and reported, never edited -->
+    <resources>
+        <format id="r1" name="FFVideoFormat1080p25" frameDuration="100/2500s" width="1920" height="1080" colorSpace="1-1-1 (Rec. 709)"/>
+        <asset id="r2" name="G001_reception" uid="AA33BB44-CC55-4433-EE77-000000000001" start="0s" duration="500s" hasVideo="1" format="r1" hasAudio="1" audioSources="1" audioChannels="2" audioRate="48000">
+            <media-rep kind="original-media" sig="AA33BB44-CC55-4433-EE77-000000000001" src="file:///Volumes/Media/Weddings/Okafor/G001_reception.mov"/>
+        </asset>
+        <effect id="r6" name="Mystery Look" uid="/Library/Plug-Ins/FxPlug/MysteryLook.pluginkit"/>
+        <media id="r7" name="Compound Section" uid="AA33BB44-CC55-4433-EE77-000000000007" modDate="2026-08-06 10:00:00 +0100">
+            <sequence format="r1" duration="4s" tcStart="0s" tcFormat="NDF">
+                <spine>
+                    <asset-clip ref="r2" offset="0s" name="compound-inner" start="30s" duration="4s" tcFormat="NDF"/>
+                </spine>
+            </sequence>
+        </media>
+    </resources>
+    <library location="file:///Users/editor/Movies/Weddings.fcpbundle/">
+        <event name="Okafor Wedding" uid="BB44CC55-DD66-4444-FF88-000000000010">
+            <project name="Okafor Unknowns" uid="BB44CC55-DD66-4444-FF88-000000000011" modDate="2026-08-06 10:30:00 +0100">
+                <sequence format="r1" duration="16s" tcStart="3600s" tcFormat="NDF" audioLayout="stereo" audioRate="48k">
+                    <spine>
+                        <!-- locked: client approved section -->
+                        <asset-clip ref="r2" offset="0s" name="reception-entry" start="0s" duration="4s" customFutureAttr="1" tcFormat="NDF">
+                            <marker start="1s" duration="1/25s" value="Client note &#10;keep this moment"/>
+                            <filter-video ref="r6" name="Mystery Look"/>
+                            <metadata>
+                                <md key="com.example.reedit.test" value="unknown metadata block"/>
+                            </metadata>
+                            <future-thing mode="x"/>
+                        </asset-clip>
+                        <ref-clip ref="r7" offset="4s" name="compound-usage" duration="4s"/>
+                        <sync-clip offset="8s" name="synced-angles" duration="4s" format="r1" tcFormat="NDF">
+                            <asset-clip ref="r2" offset="0s" name="sync-inner" start="200s" duration="4s" tcFormat="NDF"/>
+                        </sync-clip>
+                        <asset-clip ref="r2" offset="12s" name="conformed-slowmo" start="250s" duration="4s" tcFormat="NDF">
+                            <conform-rate scaleEnabled="0" srcFrameRate="60"/>
+                        </asset-clip>
+                    </spine>
+                </sequence>
+            </project>
+        </event>
+    </library>
+</fcpxml>

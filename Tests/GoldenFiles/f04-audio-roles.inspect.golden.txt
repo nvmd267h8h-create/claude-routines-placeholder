@@ -1,0 +1,20 @@
+FCPXML version: 1.11
+Project: Patel Wedding Speeches
+Frame duration: 100/2500s (25 fps)
+Project start: 3600s
+Duration: 12s
+Node counts:
+  adjust-volume: 1
+  asset: 2
+  asset-clip: 2
+  audio-channel-source: 1
+  event: 1
+  fcpxml: 1
+  format: 1
+  gap: 1
+  library: 1
+  media-rep: 2
+  project: 1
+  resources: 1
+  sequence: 1
+  spine: 1

@@ -103,8 +103,11 @@ public enum Validator {
 
         // Every ref/format attribute must resolve into <resources>; this covers
         // timeline references and resource-to-resource references alike.
+        // Exception: <text-style ref> resolves against text-style-def ids local
+        // to its title, not against resources.
         let known = resources.identifiers
         for element in DOM.descendants(of: root) {
+            if element.name == "text-style" { continue }
             for attributeName in ["ref", "format"] {
                 guard let ref = DOM.attribute(attributeName, of: element) else { continue }
                 if !known.contains(ref) {

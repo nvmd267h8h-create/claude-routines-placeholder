@@ -1,0 +1,17 @@
+FCPXML version: 1.13
+Project: Novak Bundle Smoke
+Frame duration: 100/2500s (25 fps)
+Project start: 3600s
+Duration: 6s
+Node counts:
+  asset: 1
+  asset-clip: 1
+  event: 1
+  fcpxml: 1
+  format: 1
+  library: 1
+  media-rep: 1
+  project: 1
+  resources: 1
+  sequence: 1
+  spine: 1

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fcpxml>
+<fcpxml version="1.11">
+    <resources>
+        <format id="r1" name="FFVideoFormat1080p25" frameDuration="100/2500s" width="1920" height="1080" colorSpace="1-1-1 (Rec. 709)"/>
+        <asset id="r2" name="E001_ceremony_wide" uid="CC99DD00-EE11-4499-AA33-000000000001" start="0s" duration="400s" hasVideo="1" format="r1" hasAudio="1" audioSources="1" audioChannels="2" audioRate="48000">
+            <media-rep kind="original-media" sig="CC99DD00-EE11-4499-AA33-000000000001" src="file:///Volumes/Media/Weddings/Kim/E001_ceremony_wide.mov"/>
+        </asset>
+    </resources>
+    <library location="file:///Users/editor/Movies/Weddings.fcpbundle/">
+        <event name="Kim Wedding" uid="DD00EE11-FF22-4400-BB44-000000000010">
+            <project name="Kim Wedding Ceremony" uid="DD00EE11-FF22-4400-BB44-000000000011" modDate="2026-08-05 11:20:00 +0100">
+                <sequence format="r1" duration="12s" tcStart="3600s" tcFormat="NDF" audioLayout="stereo" audioRate="48k">
+                    <spine>
+                        <asset-clip ref="r2" offset="0s" name="clip-a" start="10s" duration="4s" tcFormat="NDF"/>
+                        <transition name="Cross Dissolve" offset="3s" duration="2s"/>
+                        <asset-clip ref="r2" offset="4s" name="clip-b" start="60s" duration="4s" tcFormat="NDF"/>
+                        <gap name="Gap" offset="8s" start="3600s" duration="2s"/>
+                        <asset-clip ref="r2" offset="10s" name="clip-c" start="120s" duration="2s" tcFormat="NDF"/>
+                    </spine>
+                </sequence>
+            </project>
+        </event>
+    </library>
+</fcpxml>
