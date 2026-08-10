@@ -212,8 +212,8 @@ public struct FCPTime: Hashable, Comparable, Sendable, CustomStringConvertible {
     public static func < (lhs: FCPTime, rhs: FCPTime) -> Bool {
         // a/b < c/d  <=>  a*d < c*b  (b, d > 0). Full-width products are exact
         // signed 128-bit values represented as (high: Int64, low: UInt64).
-        let left = lhs.numerator.multipliedFullWidth(of: rhs.denominator)
-        let right = rhs.numerator.multipliedFullWidth(of: lhs.denominator)
+        let left = lhs.numerator.multipliedFullWidth(by: rhs.denominator)
+        let right = rhs.numerator.multipliedFullWidth(by: lhs.denominator)
         if left.high != right.high {
             return left.high < right.high
         }
