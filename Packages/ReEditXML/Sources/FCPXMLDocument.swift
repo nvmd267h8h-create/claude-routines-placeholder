@@ -72,6 +72,17 @@ struct PrologInfo: Sendable, Equatable {
     }
 }
 
+/// Captures SAX-level parse errors during the strict well-formedness gate.
+private final class ParseErrorSink: NSObject, XMLParserDelegate {
+    var firstError: Error?
+
+    func parser(_ parser: XMLParser, parseErrorOccurred parseError: Error) {
+        if firstError == nil {
+            firstError = parseError
+        }
+    }
+}
+
 /// A loaded FCPXML document: raw source bytes, prolog facts, the retained DOM
 /// and verified root metadata.
 ///
@@ -115,13 +126,17 @@ public final class FCPXMLDocument {
         self.prolog = PrologInfo.scan(data)
 
         // Strict well-formedness gate first: Linux FoundationXML's XMLDocument
-        // silently *recovers* malformed XML (verified in CI), so a SAX parse —
-        // strict on both platforms — decides well-formedness.
+        // silently *recovers* malformed XML (verified in CI), so a SAX parse
+        // decides well-formedness. On Linux `parse()` can return true despite
+        // fatal errors (also verified in CI), so a delegate captures them.
         let strictParser = XMLParser(data: data)
         strictParser.externalEntityResolvingPolicy = .never
-        if !strictParser.parse() {
-            let underlying = strictParser.parserError.map(String.init(describing:))
-                ?? "unknown parser error"
+        let errorSink = ParseErrorSink()
+        strictParser.delegate = errorSink
+        let parsed = strictParser.parse()
+        if !parsed || errorSink.firstError != nil || strictParser.parserError != nil {
+            let underlying = (errorSink.firstError ?? strictParser.parserError)
+                .map(String.init(describing:)) ?? "unknown parser error"
             throw FCPXMLLoadError.malformedXML(
                 path: input.documentPath,
                 underlying: "line \(strictParser.lineNumber): \(underlying)",
